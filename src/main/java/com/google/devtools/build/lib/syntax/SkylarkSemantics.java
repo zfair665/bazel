@@ -93,7 +93,7 @@ public abstract class SkylarkSemantics {
           .incompatibleDepsetIsNotIterable(false)
           .incompatibleDepsetUnion(false)
           .incompatibleDisableObjcProviderResources(false)
-          .incompatibleDisallowDictPlus(false)
+          .incompatibleDisallowDictPlus(true)
           .incompatibleDisallowFileType(false)
           .incompatibleDisallowLegacyJavaInfo(false)
           .incompatibleDisallowOldStyleArgsAdd(false)
