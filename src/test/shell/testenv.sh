@@ -289,7 +289,7 @@ EOF
 
   if [[ -d ${REPOSITORY_CACHE:-} ]]; then
     echo "testenv.sh: Using repository cache at $REPOSITORY_CACHE."
-    cat >>$TEST_TMPDIR <<EOF
+    cat >>$TEST_TMPDIR/bazelrc <<EOF
 sync --repository_cache=$REPOSITORY_CACHE --experimental_repository_cache_hardlinks
 fetch --repository_cache=$REPOSITORY_CACHE --experimental_repository_cache_hardlinks
 build --repository_cache=$REPOSITORY_CACHE --experimental_repository_cache_hardlinks
