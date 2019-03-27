@@ -41,6 +41,7 @@ import com.google.devtools.build.lib.vfs.PathFragment;
 import com.google.devtools.common.options.OptionsBase;
 import com.google.devtools.common.options.OptionsParsingResult;
 import com.google.devtools.common.options.OptionsProvider;
+import java.io.IOException;
 import java.util.UUID;
 import javax.annotation.Nullable;
 

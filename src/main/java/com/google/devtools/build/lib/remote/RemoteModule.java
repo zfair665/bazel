@@ -31,8 +31,11 @@ import com.google.devtools.build.lib.events.Reporter;
 import com.google.devtools.build.lib.exec.ExecutorBuilder;
 import com.google.devtools.build.lib.remote.logging.LoggingInterceptor;
 import com.google.devtools.build.lib.remote.options.RemoteOptions;
+import com.google.devtools.build.lib.remote.options.RemoteOptions.FetchRemoteOutputsStrategy;
 import com.google.devtools.build.lib.remote.util.DigestUtil;
 import com.google.devtools.build.lib.remote.util.TracingMetadataUtils;
+import com.google.devtools.build.lib.rules.cpp.CppOptions;
+import com.google.devtools.build.lib.rules.java.JavaOptions;
 import com.google.devtools.build.lib.runtime.BlazeModule;
 import com.google.devtools.build.lib.runtime.BuildEventArtifactUploaderFactory;
 import com.google.devtools.build.lib.runtime.Command;
@@ -67,7 +70,9 @@ public final class RemoteModule extends BlazeModule {
 
   private final ListeningScheduledExecutorService retryScheduler =
       MoreExecutors.listeningDecorator(Executors.newScheduledThreadPool(1));
+
   private RemoteActionContextProvider actionContextProvider;
+  private RemoteActionInputFetcher actionInputFetcher;
 
   private final BuildEventArtifactUploaderFactoryDelegate
       buildEventArtifactUploaderFactoryDelegate = new BuildEventArtifactUploaderFactoryDelegate();
@@ -117,11 +122,15 @@ public final class RemoteModule extends BlazeModule {
 
   @Override
   public void beforeCommand(CommandEnvironment env) throws AbruptExitException {
+    Preconditions.checkState(actionContextProvider == null, "actionContextProvider must be null");
+    Preconditions.checkState(actionInputFetcher == null, "actionInputFetcher must be null");
+
     RemoteOptions remoteOptions = env.getOptions().getOptions(RemoteOptions.class);
     if (remoteOptions == null) {
       // Quit if no supported command is being used. See getCommandOptions for details.
       return;
     }
+
     AuthAndTLSOptions authAndTlsOptions = env.getOptions().getOptions(AuthAndTLSOptions.class);
     DigestHashFunction hashFn = env.getRuntime().getFileSystem().getDigestFunction();
     DigestUtil digestUtil = new DigestUtil(hashFn);
@@ -140,6 +149,22 @@ public final class RemoteModule extends BlazeModule {
     if (!enableBlobStoreCache && !enableGrpcCache && !enableRemoteExecution) {
       // Quit if no remote caching or execution was enabled.
       return;
+    }
+
+    FetchRemoteOutputsStrategy remoteOutputsStrategy = remoteOptions.experimentalRemoteFetchOutputs;
+    if (remoteOutputsStrategy == FetchRemoteOutputsStrategy.MINIMAL) {
+      boolean inmemoryJdepsFiles = Preconditions.checkNotNull(
+          env.getOptions().getOptions(JavaOptions.class), "JavaOptions").inmemoryJdepsFiles;
+      if (!inmemoryJdepsFiles) {
+        throw new AbruptExitException("--experimental_remote_fetch_outputs=minimal requires"
+            + " --experimental_inmemory_jdeps_files to be enabled", ExitCode.COMMAND_LINE_ERROR);
+      }
+      boolean inmemoryDotdFiles = Preconditions.checkNotNull(
+          env.getOptions().getOptions(CppOptions.class), "CppOptions").inmemoryDotdFiles;
+      if (!inmemoryDotdFiles) {
+        throw new AbruptExitException("--experimental_remote_fetch_outputs=minimal requires"
+            + " --experimental_inmemory_dotd_files to be enabled", ExitCode.COMMAND_LINE_ERROR);
+      }
     }
 
     env.getEventBus().register(this);
@@ -323,14 +348,54 @@ public final class RemoteModule extends BlazeModule {
   }
 
   @Override
-  public void afterCommand() {
+  public void afterCommand() throws AbruptExitException {
+    IOException failure = null;
+    try {
+      deleteFetchedInputs();
+    } catch (IOException e) {
+      failure = e;
+    }
+
+    try {
+      closeRpcLogFile();
+    } catch (IOException e) {
+      failure = e;
+    }
+
     buildEventArtifactUploaderFactoryDelegate.reset();
     actionContextProvider = null;
+    actionInputFetcher = null;
+
+    if (failure != null) {
+      throw new AbruptExitException(ExitCode.LOCAL_ENVIRONMENTAL_ERROR, failure);
+    }
+  }
+
+  /**
+   * Delete any input files that have been fetched from the remote server during the build. This
+   * is so that Bazel's view of the output base reflects reality after a build.
+   */
+  private void deleteFetchedInputs() throws IOException {
+    if (actionInputFetcher == null) {
+      return;
+    }
+    IOException deletionFailure = null;
+    for (Path file : actionInputFetcher.downloadedFiles()) {
+      try {
+        file.delete();
+      } catch (IOException e) {
+        deletionFailure = e;
+      }
+    }
+    if (deletionFailure != null) {
+      throw deletionFailure;
+    }
+  }
+
+  private void closeRpcLogFile() throws IOException {
     if (rpcLogFile != null) {
       try {
         rpcLogFile.close();
-      } catch (IOException e) {
-        throw new RuntimeException(e);
       } finally {
         rpcLogFile = null;
       }
@@ -339,15 +404,27 @@ public final class RemoteModule extends BlazeModule {
 
   @Override
   public void executorInit(CommandEnvironment env, BuildRequest request, ExecutorBuilder builder) {
-    if (actionContextProvider != null) {
-      builder.addActionContextProvider(actionContextProvider);
+    Preconditions.checkState(actionInputFetcher == null, "actionInputFetcher must be null");
+    if (actionContextProvider == null) {
+      return;
+    }
+    builder.addActionContextProvider(actionContextProvider);
+    RemoteOptions remoteOptions = Preconditions.checkNotNull(env.getOptions().getOptions(RemoteOptions.class), "RemoteOptions");
+    FetchRemoteOutputsStrategy remoteOutputsStrategy = remoteOptions.experimentalRemoteFetchOutputs;
+    if (remoteOutputsStrategy != FetchRemoteOutputsStrategy.ALL) {
+      Context ctx = TracingMetadataUtils.contextWithMetadata(env.getBuildRequestId(),
+          env.getCommandId().toString(), "fetch-remote-inputs");
+      actionInputFetcher = new RemoteActionInputFetcher(actionContextProvider.getRemoteCache(),
+          env.getExecRoot(), ctx);
+      builder.setActionInputPrefetcher(actionInputFetcher);
     }
   }
 
   @Override
   public Iterable<Class<? extends OptionsBase>> getCommandOptions(Command command) {
     return "build".equals(command.name())
-        ? ImmutableList.of(RemoteOptions.class, AuthAndTLSOptions.class)
+        ? ImmutableList.of(RemoteOptions.class, AuthAndTLSOptions.class, JavaOptions.class,
+            CppOptions.class)
         : ImmutableList.of();
   }
 

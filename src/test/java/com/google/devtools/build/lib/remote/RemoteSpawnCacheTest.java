@@ -114,8 +114,6 @@ public class RemoteSpawnCacheTest {
 
         @Override
         public void prefetchInputs() {
-          // CachedLocalSpawnRunner should never prefetch itself, though the nested SpawnRunner may.
-          throw new UnsupportedOperationException();
         }
 
         @Override
