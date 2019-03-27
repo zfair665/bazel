@@ -48,7 +48,6 @@ filegroup(
         "//src/main/java/com/google/devtools/build/lib/remote/logging:srcs",
         "//src/main/java/com/google/devtools/build/lib/remote/util:srcs",
         "//src/main/java/com/google/devtools/build/lib/remote/merkletree:srcs",
-        "//src/main/java/com/google/devtools/build/lib/remote/options:srcs",
         "//src/main/java/com/google/devtools/build/lib/rules/apple/cpp:srcs",
         "//src/main/java/com/google/devtools/build/lib/rules/apple:srcs",
         "//src/main/java/com/google/devtools/build/lib/rules/apple/swift:srcs",
