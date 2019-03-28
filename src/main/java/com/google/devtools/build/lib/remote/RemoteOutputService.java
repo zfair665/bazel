@@ -36,7 +36,9 @@ public class RemoteOutputService implements OutputService {
 
   @Override
   public ActionFileSystemSupport supportsActionFileSystem() {
-    return ActionFileSystemSupport.STAGE_REMOTE_FIlES;
+    return actionInputFetcher != null
+        ? ActionFileSystemSupport.STAGE_REMOTE_FIlES
+        : ActionFileSystemSupport.NONE;
   }
 
   @Nullable

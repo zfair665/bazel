@@ -263,14 +263,14 @@ public final class RemoteModule extends BlazeModule {
                 digestUtil,
                 uploader.retain());
         uploader.release();
-        Context requestContext =
-            TracingMetadataUtils.contextWithMetadata(buildRequestId, invocationId, "bes-upload");
-        buildEventArtifactUploaderFactoryDelegate.init(
-            new ByteStreamBuildEventArtifactUploaderFactory(
-                uploader,
-                cacheChannel.authority(),
-                requestContext,
-                remoteOptions.remoteInstanceName));
+//        Context requestContext =
+//            TracingMetadataUtils.contextWithMetadata(buildRequestId, invocationId, "bes-upload");
+//        buildEventArtifactUploaderFactoryDelegate.init(
+//            new ByteStreamBuildEventArtifactUploaderFactory(
+//                uploader,
+//                cacheChannel.authority(),
+//                requestContext,
+//                remoteOptions.remoteInstanceName));
       }
 
       if (enableBlobStoreCache) {
