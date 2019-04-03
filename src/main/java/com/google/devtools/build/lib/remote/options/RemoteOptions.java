@@ -251,7 +251,7 @@ public final class RemoteOptions extends OptionsBase {
 
   @Option(
       name = "experimental_remote_download_outputs",
-      defaultValue = "all",
+      defaultValue = "minimal",
       category = "remote",
       documentationCategory = OptionDocumentationCategory.OUTPUT_PARAMETERS,
       effectTags = {OptionEffectTag.AFFECTS_OUTPUTS},
