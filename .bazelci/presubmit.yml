@@ -21,7 +21,7 @@ tasks:
     - "//src/test/shell/bazel:cpp_darwin_integration_test"
   macos_xcode_10_1:
     platform: macos
-    xcode_version: 10.1
+    xcode_version: "10.1"
     shell_commands:
     - sed -i.bak -e 's/^# android_sdk_repository/android_sdk_repository/' -e 's/^#
       android_ndk_repository/android_ndk_repository/' WORKSPACE
@@ -42,7 +42,7 @@ tasks:
     - "//src/test/shell/bazel:cpp_darwin_integration_test"
   macos_xcode_10_2:
     platform: macos
-    xcode_version: 10.2
+    xcode_version: "10.2"
     shell_commands:
     - sed -i.bak -e 's/^# android_sdk_repository/android_sdk_repository/' -e 's/^#
       android_ndk_repository/android_ndk_repository/' WORKSPACE
@@ -63,7 +63,7 @@ tasks:
     - "//src/test/shell/bazel:cpp_darwin_integration_test"
   macos_xcode_10_3:
     platform: macos
-    xcode_version: 10.3
+    xcode_version: "10.3"
     shell_commands:
     - sed -i.bak -e 's/^# android_sdk_repository/android_sdk_repository/' -e 's/^#
       android_ndk_repository/android_ndk_repository/' WORKSPACE
@@ -84,7 +84,7 @@ tasks:
     - "//src/test/shell/bazel:cpp_darwin_integration_test"
   macos_xcode_invalid:
     platform: macos
-    xcode_version: not a version
+    xcode_version: "not a version"
     shell_commands:
     - sed -i.bak -e 's/^# android_sdk_repository/android_sdk_repository/' -e 's/^#
       android_ndk_repository/android_ndk_repository/' WORKSPACE
