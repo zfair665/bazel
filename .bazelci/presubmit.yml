@@ -18,88 +18,29 @@ tasks:
     - "--noincompatible_strict_action_env"
     test_targets:
     - "--"
-    - "//src/test/shell/bazel:cpp_darwin_integration_test"
-  macos_xcode_10_1:
-    platform: macos
-    xcode_version: "10.1"
-    shell_commands:
-    - sed -i.bak -e 's/^# android_sdk_repository/android_sdk_repository/' -e 's/^#
-      android_ndk_repository/android_ndk_repository/' WORKSPACE
-    - rm -f WORKSPACE.bak
-    build_flags:
-    - "--apple_platform_type=macos"
-    # Remove when https://github.com/bazelbuild/bazel/issues/7026 is fixed.
-    - "--noincompatible_strict_action_env"
-    build_targets:
-    - "//src:bazel"
-    - "//src:bazel_jdk_minimal"
-    test_flags:
-    - "--test_timeout=1200"
-    # Remove when https://github.com/bazelbuild/bazel/issues/7026 is fixed.
-    - "--noincompatible_strict_action_env"
-    test_targets:
-    - "--"
-    - "//src/test/shell/bazel:cpp_darwin_integration_test"
-  macos_xcode_10_2:
-    platform: macos
-    xcode_version: "10.2"
-    shell_commands:
-    - sed -i.bak -e 's/^# android_sdk_repository/android_sdk_repository/' -e 's/^#
-      android_ndk_repository/android_ndk_repository/' WORKSPACE
-    - rm -f WORKSPACE.bak
-    build_flags:
-    - "--apple_platform_type=macos"
-    # Remove when https://github.com/bazelbuild/bazel/issues/7026 is fixed.
-    - "--noincompatible_strict_action_env"
-    build_targets:
-    - "//src:bazel"
-    - "//src:bazel_jdk_minimal"
-    test_flags:
-    - "--test_timeout=1200"
-    # Remove when https://github.com/bazelbuild/bazel/issues/7026 is fixed.
-    - "--noincompatible_strict_action_env"
-    test_targets:
-    - "--"
-    - "//src/test/shell/bazel:cpp_darwin_integration_test"
-  macos_xcode_10_3:
-    platform: macos
-    xcode_version: "10.3"
-    shell_commands:
-    - sed -i.bak -e 's/^# android_sdk_repository/android_sdk_repository/' -e 's/^#
-      android_ndk_repository/android_ndk_repository/' WORKSPACE
-    - rm -f WORKSPACE.bak
-    build_flags:
-    - "--apple_platform_type=macos"
-    # Remove when https://github.com/bazelbuild/bazel/issues/7026 is fixed.
-    - "--noincompatible_strict_action_env"
-    build_targets:
-    - "//src:bazel"
-    - "//src:bazel_jdk_minimal"
-    test_flags:
-    - "--test_timeout=1200"
-    # Remove when https://github.com/bazelbuild/bazel/issues/7026 is fixed.
-    - "--noincompatible_strict_action_env"
-    test_targets:
-    - "--"
-    - "//src/test/shell/bazel:cpp_darwin_integration_test"
-  macos_xcode_invalid:
-    platform: macos
-    xcode_version: "not a version"
-    shell_commands:
-    - sed -i.bak -e 's/^# android_sdk_repository/android_sdk_repository/' -e 's/^#
-      android_ndk_repository/android_ndk_repository/' WORKSPACE
-    - rm -f WORKSPACE.bak
-    build_flags:
-    - "--apple_platform_type=macos"
-    # Remove when https://github.com/bazelbuild/bazel/issues/7026 is fixed.
-    - "--noincompatible_strict_action_env"
-    build_targets:
-    - "//src:bazel"
-    - "//src:bazel_jdk_minimal"
-    test_flags:
-    - "--test_timeout=1200"
-    # Remove when https://github.com/bazelbuild/bazel/issues/7026 is fixed.
-    - "--noincompatible_strict_action_env"
-    test_targets:
-    - "--"
-    - "//src/test/shell/bazel:cpp_darwin_integration_test"
+    - "//scripts/..."
+    - "//src/test/..."
+    - "//src/tools/execlog/..."
+    - "//src/tools/singlejar/..."
+    - "//src/tools/workspacelog/..."
+    - "//third_party/ijar/..."
+    - "//tools/android/..."
+    - "//tools/aquery_differ/..."
+      # C++ coverage is not supported on macOS yet.
+    - "-//src/test/shell/bazel:bazel_cc_code_coverage_test"
+      # Re-enable once fixed: https://github.com/bazelbuild/bazel/issues/4663
+    - "-//src/test/shell/bazel/android:android_ndk_integration_test"
+      # The below tests have been disabled because they are too slow on macOS.
+      # Re-enable once fixed: https://github.com/bazelbuild/bazel/issues/4684
+    - "-//src/test/shell/bazel:bazel_determinism_test"
+    - "-//src/test/shell/bazel:bazel_java_test"
+    - "-//src/test/shell/bazel:bazel_bootstrap_distfile_test"
+    - "-//src/test/shell/bazel/remote:remote_execution_test"
+    - "-//src/test/shell/bazel/remote:remote_execution_http_test"
+    - "-//src/test/shell/bazel:skylark_git_repository_test"
+    - "-//src/test/shell/bazel:external_path_test"
+    - "-//src/test/py/bazel:runfiles_test"
+    - "-//src/test/shell/bazel:git_repository_test"
+    - "-//src/test/shell/bazel/android:aar_integration_test"
+    - "-//src/test/shell/bazel/android:android_integration_test"
+    - "-//src/test/shell/integration:minimal_jdk_test"
