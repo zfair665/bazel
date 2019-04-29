@@ -332,7 +332,7 @@ public class StarlarkSemanticsOptions extends OptionsBase implements Serializabl
 
   @Option(
       name = "incompatible_string_join_requires_strings",
-      defaultValue = "false",
+      defaultValue = "true",
       documentationCategory = OptionDocumentationCategory.STARLARK_SEMANTICS,
       effectTags = {OptionEffectTag.BUILD_FILE_SEMANTICS},
       metadataTags = {
@@ -361,7 +361,7 @@ public class StarlarkSemanticsOptions extends OptionsBase implements Serializabl
 
   @Option(
       name = "incompatible_disallow_old_octal_notation",
-      defaultValue = "false",
+      defaultValue = "true",
       category = "incompatible changes",
       documentationCategory = OptionDocumentationCategory.STARLARK_SEMANTICS,
       effectTags = {OptionEffectTag.BUILD_FILE_SEMANTICS},
@@ -499,7 +499,7 @@ public class StarlarkSemanticsOptions extends OptionsBase implements Serializabl
 
   @Option(
       name = "incompatible_no_kwargs_in_build_files",
-      defaultValue = "false",
+      defaultValue = "true",
       documentationCategory = OptionDocumentationCategory.STARLARK_SEMANTICS,
       effectTags = {OptionEffectTag.BUILD_FILE_SEMANTICS},
       metadataTags = {
@@ -540,7 +540,7 @@ public class StarlarkSemanticsOptions extends OptionsBase implements Serializabl
 
   @Option(
       name = "incompatible_static_name_resolution_in_build_files",
-      defaultValue = "false",
+      defaultValue = "true",
       documentationCategory = OptionDocumentationCategory.STARLARK_SEMANTICS,
       effectTags = {OptionEffectTag.BUILD_FILE_SEMANTICS},
       metadataTags = {
